@@ -134,6 +134,35 @@ atender_siguiente_paciente(List *pacientes){
   free(pacienteAtendido);
 }
 
+void mostrar_pacientes_prioridad(List *pacientes) {
+  printf("Pacientes por prioridad:\n");
+  tipoPaciente *pacienteAux = list_first(pacientes);
+  
+  printf("Prioridad Alta:\n");
+  while (pacienteAux != NULL && strcasecmp(pacienteAux->prioridad, "alta") == 0) {
+    printf("- Nombre: %s, Edad: %d, Síntoma: %s, Prioridad: %s\n",
+           pacienteAux->nombre, pacienteAux->edad,
+           pacienteAux->sintoma, pacienteAux->prioridad);
+    pacienteAux = list_next(pacientes);
+  }
+
+  printf("Prioridad Media:\n");
+  while (pacienteAux != NULL && strcasecmp(pacienteAux->prioridad, "media") == 0) {
+    printf("- Nombre: %s, Edad: %d, Síntoma: %s, Prioridad: %s\n",
+           pacienteAux->nombre, pacienteAux->edad,
+           pacienteAux->sintoma, pacienteAux->prioridad);
+    pacienteAux = list_next(pacientes);
+  }
+
+  printf("Prioridad Baja:\n");
+  while (pacienteAux != NULL && strcasecmp(pacienteAux->prioridad, "baja") == 0) {
+    printf("- Nombre: %s, Edad: %d, Síntoma: %s, Prioridad: %s\n",
+           pacienteAux->nombre, pacienteAux->edad,
+           pacienteAux->sintoma, pacienteAux->prioridad);
+    pacienteAux = list_next(pacientes);
+  }
+}
+
 int main() {
   char opcion;
   List *pacientes = list_create(); // puedes usar una lista para gestionar los pacientes
@@ -161,6 +190,7 @@ int main() {
       break;
     case '5':
       // Lógica para mostrar pacientes por prioridad
+      mostrar_pacientes_prioridad(pacientes);
       break;
     case '6':
       puts("Saliendo del sistema de gestión hospitalaria...");
