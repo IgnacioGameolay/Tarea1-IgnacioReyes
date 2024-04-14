@@ -1,14 +1,15 @@
 #include "tdas/list.h"
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
-typdef struct{
-  char horaRegistro;
-  char nombre;
+typedef struct{
+  char horaRegistro[50];
+  char nombre[50];
   int edad;
-  char sintoma;
-  char prioridad;
-} tipoPaciente
+  char sintoma[50];
+  char prioridad[50];
+} tipoPaciente;
 
 // Función para limpiar la pantalla
 void limpiarPantalla() { system("clear"); }
@@ -37,7 +38,13 @@ void mostrarMenuPrincipal() {
 void registrar_paciente(List *pacientes) {
   printf("Registrar nuevo paciente\n");
   // Aquí implementarías la lógica para registrar un nuevo paciente
-  tipoPaciente *regPaciente;
+  tipoPaciente *regPaciente = malloc(sizeof(tipoPaciente));
+  if (regPaciente == NULL){
+    printf("Error al asignar memoria para el nuevo paciente");
+    return;
+  }
+
+  
   printf("Ingrese el nombre del paciente: ");
   scanf("%s", &regPaciente->nombre);
   printf("Ingrese la edad del paciente: ");
@@ -47,50 +54,85 @@ void registrar_paciente(List *pacientes) {
   printf("Ingrese la hora de registro: ");
   scanf("%s", &regPaciente->horaRegistro);
   //Asignacion default de prioridad
-  regPaciente->prioridad = 'Baja';
+  strcpy(regPaciente->prioridad, "Baja");
 
-  list_pusBack(pacientes, regPaciente);
+  list_pushBack(pacientes, regPaciente);
 }
 
 void asignarPrioridad(List *pacientes) {
   char nombrePaciente[50];
-  char proridadPaciente[50];
+  char prioridadPaciente[50];
+  
   printf("Asignar prioridad a paciente\n");
-  scanf("%s", &nombrePaciente);
-  scanf("%s", &proridadPaciente);
+  printf("Ingrese el nombre del paciente: ");
+  scanf("%s", nombrePaciente);
+  printf("Ingrese la prioridad del paciente (Alta/Media/Baja): ");
+  scanf("%s", prioridadPaciente);
   
   tipoPaciente *pacienteAux = list_first(pacientes);
   
-  while (pacienteAux->nombre !=nombre || pacienteAux != NULL){
+  while (pacienteAux != NULL){
     
-    if (pacienteAux->nombre == nombrePaciente){
-      pacienteAux->prioridad = proridadPaciente;
+    if (strcasecmp (pacienteAux->nombre, nombrePaciente) == 0){
+      //
       
-      if (pacienteAux->prioridad == 'Alta'){
+      for (int i = 0; prioridadPaciente[i]; i++){
+        prioridadPaciente[i] = tolower(prioridadPaciente[i]);
+      }
+      
+      if (strcasecmp(prioridadPaciente, "alta") == 0){
+        strcpy(pacienteAux->prioridad, "Alta");
         list_popCurrent(pacientes);
         list_pushBack(pacientes, pacienteAux);
       }
-      else if (pacienteAux->prioridad == 'Baja'){
+      else if (strcasecmp(prioridadPaciente, "baja") == 0){
+        strcpy(pacienteAux->prioridad, "Baja");
         list_popCurrent(pacientes);
         list_pushFront(pacientes, pacienteAux);
       }
-      else{
+      else if (strcasecmp(prioridadPaciente, "media") == 0){
+          strcpy(pacienteAux->prioridad, "Media");
+        }
+        else{
+          printf("La prioridad ingresada no es válida\n");
+        }
+
         return;
       }
-      
-    }
     pacienteAux = list_next(pacientes);
   }
-
-  printf("El paciente no existe en el registro!");
 }
 
 void mostrar_lista_pacientes(List *pacientes) {
   // Mostrar pacientes en la cola de espera
   printf("Pacientes en espera: \n");
   // Aquí implementarías la lógica para recorrer y mostrar los pacientes
-}
+  tipoPaciente *pacienteAux = list_first(pacientes);
 
+  while (pacienteAux != NULL) {
+      printf("- Nombre: %s, Edad: %d, Síntoma: %s, Prioridad: %s\n",
+      pacienteAux->nombre, pacienteAux->edad, 
+      pacienteAux->sintoma, pacienteAux->prioridad);
+    
+      pacienteAux = list_next(pacientes);
+  }
+}
+atender_siguiente_paciente(List *pacientes){
+  printf("Atender al siguiente paciente\n");
+  if(list_first(pacientes) == NULL){
+    printf("No hay pacientes en la lista de espera");
+    return;
+  }
+
+  tipoPaciente *pacienteAtendido = list_popFront(list_first(pacientes));
+  
+  printf("Atendiendo al siguiente paciente:\n");
+  printf("- Nombre: %s, Edad: %d, Síntoma: %s, Prioridad: %s\n",
+         pacienteAtendido->nombre, pacienteAtendido->edad,
+         pacienteAtendido->sintoma, pacienteAtendido->prioridad);
+
+  free(pacienteAtendido);
+}
 
 int main() {
   char opcion;
@@ -115,6 +157,7 @@ int main() {
       break;
     case '4':
       // Lógica para atender al siguiente paciente
+      atender_siguiente_paciente(pacientes);
       break;
     case '5':
       // Lógica para mostrar pacientes por prioridad
