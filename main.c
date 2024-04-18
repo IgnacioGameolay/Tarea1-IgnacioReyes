@@ -2,14 +2,23 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <time.h>
+#define MAXCHAR 99
 
+//Definir structs de datos para los pacientes
 typedef struct{
-  char horaRegistro[50];
-  char nombre[50];
+  char nombre[MAXCHAR];
   int edad;
-  char sintoma[50];
+  char sintoma[MAXCHAR];
+  //char horaRegistro[50];
+  time_t horaRegistro;
   char prioridad[50];
 } tipoPaciente;
+
+//Crear las listas por prioridad
+List *listaPrioridadAlta;
+List *listaPrioridadMedia;
+List *listaPrioridadBaja;
 
 // Función para limpiar la pantalla
 void limpiarPantalla() { system("clear"); }
@@ -47,12 +56,24 @@ void registrar_paciente(List *pacientes) {
   
   printf("Ingrese el nombre del paciente: ");
   scanf("%s", &regPaciente->nombre);
+
   printf("Ingrese la edad del paciente: ");
   scanf("%d", &regPaciente->edad);
+
   printf("Ingrese el sintoma del paciente: ");
-  scanf("%s", &regPaciente->sintoma);
-  printf("Ingrese la hora de registro: ");
-  scanf("%s", &regPaciente->horaRegistro);
+  scanf("%s[\n]", &regPaciente->sintoma);
+  //getchar();
+  
+  //printf("Ingrese la hora de registro: ");
+  //scanf("%s", &regPaciente->horaRegistro);
+  
+  //Asignamos la hora automaticamente segun la zona horaria del equipo que 
+  //ejecute el programa
+  regPaciente->horaRegistro = time(NULL);
+  struct tm date = *localtime(&regPaciente->horaRegistro);
+  printf("La hora de registro es: %02d:%02d\n", date.tm_hour,
+    date.tm_min);
+  
   //Asignacion default de prioridad
   strcpy(regPaciente->prioridad, "Baja");
 
@@ -60,7 +81,7 @@ void registrar_paciente(List *pacientes) {
 }
 
 void asignarPrioridad(List *pacientes) {
-  char nombrePaciente[50];
+  char nombrePaciente[MAXCHAR];
   char prioridadPaciente[50];
   
   printf("Asignar prioridad a paciente\n");
@@ -74,8 +95,6 @@ void asignarPrioridad(List *pacientes) {
   while (pacienteAux != NULL){
     
     if (strcasecmp (pacienteAux->nombre, nombrePaciente) == 0){
-      //
-      
       for (int i = 0; prioridadPaciente[i]; i++){
         prioridadPaciente[i] = tolower(prioridadPaciente[i]);
       }
@@ -84,13 +103,16 @@ void asignarPrioridad(List *pacientes) {
         strcpy(pacienteAux->prioridad, "Alta");
         list_popCurrent(pacientes);
         list_pushBack(pacientes, pacienteAux);
+
       }
       else if (strcasecmp(prioridadPaciente, "baja") == 0){
         strcpy(pacienteAux->prioridad, "Baja");
         list_popCurrent(pacientes);
         list_pushFront(pacientes, pacienteAux);
+
       }
       else if (strcasecmp(prioridadPaciente, "media") == 0){
+
           strcpy(pacienteAux->prioridad, "Media");
         }
         else{
@@ -109,6 +131,12 @@ void mostrar_lista_pacientes(List *pacientes) {
   // Aquí implementarías la lógica para recorrer y mostrar los pacientes
   tipoPaciente *pacienteAux = list_first(pacientes);
 
+  if (pacienteAux == NULL){
+    printf("No hay pacientes en la lista de espera.\n");
+    return;
+
+  }
+  
   while (pacienteAux != NULL) {
       printf("- Nombre: %s, Edad: %d, Síntoma: %s, Prioridad: %s\n",
       pacienteAux->nombre, pacienteAux->edad, 
@@ -136,7 +164,13 @@ atender_siguiente_paciente(List *pacientes){
 
 void mostrar_pacientes_prioridad(List *pacientes) {
   printf("Pacientes por prioridad:\n");
+  
   tipoPaciente *pacienteAux = list_first(pacientes);
+  if (pacienteAux == NULL){
+    printf("No hay pacientes en la lista de espera.\n");
+    return;
+
+  }
   
   printf("Prioridad Alta:\n");
   while (pacienteAux != NULL && strcasecmp(pacienteAux->prioridad, "alta") == 0) {
@@ -166,7 +200,11 @@ void mostrar_pacientes_prioridad(List *pacientes) {
 int main() {
   char opcion;
   List *pacientes = list_create(); // puedes usar una lista para gestionar los pacientes
-
+  
+  listaPrioridadAlta = list_create();
+  listaPrioridadMedia = list_create();
+  listaPrioridadBaja = list_create();
+  
   do {
     mostrarMenuPrincipal();
     printf("Ingrese su opción: ");
