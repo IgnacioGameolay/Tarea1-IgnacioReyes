@@ -44,6 +44,7 @@ void mostrarMenuPrincipal() {
   puts("6) Salir");
 }
 
+//Funcion para registrar pacientes
 void registrar_paciente(List *pacientes) {
   printf("Registrar nuevo paciente\n");
   // Aquí implementarías la lógica para registrar un nuevo paciente
@@ -53,7 +54,6 @@ void registrar_paciente(List *pacientes) {
     return;
   }
 
-  
   printf("Ingrese el nombre del paciente: ");
   scanf("%s", &regPaciente->nombre);
 
@@ -62,13 +62,10 @@ void registrar_paciente(List *pacientes) {
 
   printf("Ingrese el sintoma del paciente: ");
   scanf("%s[\n]", &regPaciente->sintoma);
-  //getchar();
-  
-  //printf("Ingrese la hora de registro: ");
-  //scanf("%s", &regPaciente->horaRegistro);
-  
+
   //Asignamos la hora automaticamente segun la zona horaria del equipo que 
   //ejecute el programa
+  
   regPaciente->horaRegistro = time(NULL);
   struct tm date = *localtime(&regPaciente->horaRegistro);
   printf("La hora de registro es: %02d:%02d\n", date.tm_hour,
@@ -79,15 +76,19 @@ void registrar_paciente(List *pacientes) {
   //list_pushBack(listaPrioridadBaja, pacienteAux);
   list_pushBack(pacientes, regPaciente);
 }
-/*
-void ordernarLista(List *listaPrioridad){
-  tipoPaciente *pacienteAux = list_first(pacientes);
 
-  while(pacienteAux != NULL){
-    
-  }
-}*/
+//Funcion comparacion para las horas de registros entre pacientes
+int compararPorHoraRegistro(void *a, void *b) {
+    tipoPaciente *pacienteA = (tipoPaciente *)a;
+    tipoPaciente *pacienteB = (tipoPaciente *)b;
 
+    // Ordenar en orden ascendente por hora de registro
+    if (pacienteA->horaRegistro < pacienteB->horaRegistro) return -1;
+    if (pacienteA->horaRegistro > pacienteB->horaRegistro) return 1;
+    return 0;
+}
+
+//Funcion para modificar la prioridad de un paciente
 void asignarPrioridad(List *pacientes) {
   char nombrePaciente[MAXCHAR];
   char prioridadPaciente[50];
@@ -108,22 +109,21 @@ void asignarPrioridad(List *pacientes) {
       //Si la prioridad es alta
       if (strcasecmp(prioridadPaciente, "alta") == 0){
         strcpy(pacienteAux->prioridad, "Alta");
-        list_pushBack(listaPrioridadAlta, pacienteAux);
-        //ordernarLista(listaPrioridadAlta);
+        list_sortedInsert(listaPrioridadAlta, pacienteAux, compararPorHoraRegistro);
         printf("Prioridad modificada a Alta\n");
       }
         
       //Si la prioridad es baja
       else if (strcasecmp(prioridadPaciente, "baja") == 0){
-        list_pushBack(listaPrioridadBaja, pacienteAux);
+        list_sortedInsert(listaPrioridadBaja, pacienteAux, compararPorHoraRegistro);
         printf("Prioridad modificada a Baja\n");
       }
         
       //Si la prioridad es media
       else if (strcasecmp(prioridadPaciente, "media") == 0){
           strcpy(pacienteAux->prioridad, "Media");
-        printf("Prioridad modificada a Media\n");
-          list_pushBack(listaPrioridadMedia, pacienteAux);
+          list_sortedInsert(listaPrioridadMedia, pacienteAux, compararPorHoraRegistro);
+          printf("Prioridad modificada a Media\n");
         }
 
       //Si la prioridad no es ninguna de las anteriores
@@ -138,7 +138,7 @@ void asignarPrioridad(List *pacientes) {
   }
 }
 
-
+//Funcion para mostrar a todos los pacientes
 void mostrar_lista_pacientes(List *pacientes) {
   // Mostrar pacientes en la cola de espera
   printf("Pacientes en espera: \n");
@@ -159,7 +159,9 @@ void mostrar_lista_pacientes(List *pacientes) {
       pacienteAux = list_next(pacientes);
   }
 }
-atender_siguiente_paciente(List *pacientes){
+
+//Funcion para atender al paciente siguiente segun prioridad y hora de llegada
+void atender_siguiente_paciente(List *pacientes){
   printf("Atender al siguiente paciente\n");
   if(list_first(pacientes) == NULL){
     printf("No hay pacientes en la lista de espera");
@@ -176,6 +178,7 @@ atender_siguiente_paciente(List *pacientes){
   free(pacienteAtendido);
 }
 
+//Funcion para mostrar los pacientes por prioridad
 void mostrar_pacientes_prioridad(List *pacientes) {
   printf("Pacientes por prioridad:\n");
   
