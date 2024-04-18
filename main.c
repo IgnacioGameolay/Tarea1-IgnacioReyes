@@ -76,54 +76,68 @@ void registrar_paciente(List *pacientes) {
   
   //Asignacion default de prioridad
   strcpy(regPaciente->prioridad, "Baja");
-
+  //list_pushBack(listaPrioridadBaja, pacienteAux);
   list_pushBack(pacientes, regPaciente);
 }
+/*
+void ordernarLista(List *listaPrioridad){
+  tipoPaciente *pacienteAux = list_first(pacientes);
+
+  while(pacienteAux != NULL){
+    
+  }
+}*/
 
 void asignarPrioridad(List *pacientes) {
   char nombrePaciente[MAXCHAR];
   char prioridadPaciente[50];
-  
+
   printf("Asignar prioridad a paciente\n");
   printf("Ingrese el nombre del paciente: ");
   scanf("%s", nombrePaciente);
   printf("Ingrese la prioridad del paciente (Alta/Media/Baja): ");
   scanf("%s", prioridadPaciente);
-  
+
   tipoPaciente *pacienteAux = list_first(pacientes);
-  
+
   while (pacienteAux != NULL){
-    
+
+    //Busco por nombre
     if (strcasecmp (pacienteAux->nombre, nombrePaciente) == 0){
-      for (int i = 0; prioridadPaciente[i]; i++){
-        prioridadPaciente[i] = tolower(prioridadPaciente[i]);
-      }
-      
+
+      //Si la prioridad es alta
       if (strcasecmp(prioridadPaciente, "alta") == 0){
         strcpy(pacienteAux->prioridad, "Alta");
-        list_popCurrent(pacientes);
-        list_pushBack(pacientes, pacienteAux);
-
+        list_pushBack(listaPrioridadAlta, pacienteAux);
+        //ordernarLista(listaPrioridadAlta);
+        printf("Prioridad modificada a Alta\n");
       }
+        
+      //Si la prioridad es baja
       else if (strcasecmp(prioridadPaciente, "baja") == 0){
-        strcpy(pacienteAux->prioridad, "Baja");
-        list_popCurrent(pacientes);
-        list_pushFront(pacientes, pacienteAux);
-
+        list_pushBack(listaPrioridadBaja, pacienteAux);
+        printf("Prioridad modificada a Baja\n");
       }
+        
+      //Si la prioridad es media
       else if (strcasecmp(prioridadPaciente, "media") == 0){
-
           strcpy(pacienteAux->prioridad, "Media");
-        }
-        else{
-          printf("La prioridad ingresada no es válida\n");
+        printf("Prioridad modificada a Media\n");
+          list_pushBack(listaPrioridadMedia, pacienteAux);
         }
 
-        return;
+      //Si la prioridad no es ninguna de las anteriores
+      else{
+        printf("La prioridad ingresada no es válida\n");
       }
-    pacienteAux = list_next(pacientes);
+
+        return; //Termino la funcion cuando modifico la prioridad
+      }
+    
+    pacienteAux = list_next(pacientes); //Paso al sig. paciente hasta dar con el que busco
   }
 }
+
 
 void mostrar_lista_pacientes(List *pacientes) {
   // Mostrar pacientes en la cola de espera
@@ -169,26 +183,37 @@ void mostrar_pacientes_prioridad(List *pacientes) {
   if (pacienteAux == NULL){
     printf("No hay pacientes en la lista de espera.\n");
     return;
-
   }
   
   printf("Prioridad Alta:\n");
+  pacienteAux = list_first(listaPrioridadAlta);
+  if (pacienteAux == NULL){
+    printf("No hay pacientes en la lista de espera Alta\n");
+  }
   while (pacienteAux != NULL && strcasecmp(pacienteAux->prioridad, "alta") == 0) {
     printf("- Nombre: %s, Edad: %d, Síntoma: %s, Prioridad: %s\n",
            pacienteAux->nombre, pacienteAux->edad,
            pacienteAux->sintoma, pacienteAux->prioridad);
-    pacienteAux = list_next(pacientes);
+    pacienteAux = list_next(listaPrioridadAlta);
   }
 
   printf("Prioridad Media:\n");
+  pacienteAux = list_first(listaPrioridadMedia);
+  if (pacienteAux == NULL){
+    printf("No hay pacientes en la lista de espera Media\n");
+  }
   while (pacienteAux != NULL && strcasecmp(pacienteAux->prioridad, "media") == 0) {
     printf("- Nombre: %s, Edad: %d, Síntoma: %s, Prioridad: %s\n",
            pacienteAux->nombre, pacienteAux->edad,
            pacienteAux->sintoma, pacienteAux->prioridad);
-    pacienteAux = list_next(pacientes);
+    pacienteAux = list_next(listaPrioridadMedia);
   }
 
   printf("Prioridad Baja:\n");
+  pacienteAux = list_first(pacientes);
+  if (pacienteAux == NULL){
+    printf("No hay pacientes en la lista de espera Baja\n");
+  }
   while (pacienteAux != NULL && strcasecmp(pacienteAux->prioridad, "baja") == 0) {
     printf("- Nombre: %s, Edad: %d, Síntoma: %s, Prioridad: %s\n",
            pacienteAux->nombre, pacienteAux->edad,
