@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
+#include <ctype.h>
 #define MAXCHAR 99
 
 //Definir structs de datos para los pacientes
@@ -55,6 +56,8 @@ void mostrarMenuPrincipal() {
   puts("6) Salir");
 }
 
+
+
 //Funcion para registrar pacientes
 void registrar_paciente(List *pacientes) {
   printf("========================================\n");
@@ -75,7 +78,7 @@ void registrar_paciente(List *pacientes) {
 
   printf("Ingrese el sintoma del paciente: ");
   scanf("%s[\n]", &regPaciente->sintoma);
-
+  toupper(regPaciente->sintoma);
   //Asignamos la hora automaticamente segun la zona horaria del equipo que 
   //ejecute el programa
   
@@ -109,25 +112,72 @@ void asignarPrioridad(List *pacientes) {
     //Busco por nombre
     if (strcasecmp (pacienteAux->nombre, nombrePaciente) == 0){
 
-      //Si la prioridad es alta
+      //Validar prioridad ingresada
+      if (strcasecmp(prioridadPaciente, "alta") != 0 &&
+          strcasecmp(prioridadPaciente, "media") != 0 &&
+          strcasecmp(prioridadPaciente, "baja") != 0) {
+        printf("La prioridad ingresada no es válida\n");
+        return;
+      }
+
+      
+      //Si la nueva prioridad es alta
       if (strcasecmp(prioridadPaciente, "alta") == 0){
+        
+        //Eliminar de la lista de prioridad anterior del paciente
+        if (strcasecmp(pacienteAux->prioridad, "media") == 0){
+          list_popCurrent(listaPrioridadMedia);
+
+        } else if (strcasecmp(pacienteAux->prioridad, "baja") == 0){
+          list_popCurrent(listaPrioridadBaja);
+        }
+        //Asignar nueva prioridad
         strcpy(pacienteAux->prioridad, "Alta");
         list_sortedInsert(listaPrioridadAlta, pacienteAux, compararPorHoraRegistro);
+
+        
+        
         printf("Prioridad modificada a Alta\n");
       }
         
-      //Si la prioridad es baja
-      else if (strcasecmp(prioridadPaciente, "baja") == 0){
-        list_sortedInsert(listaPrioridadBaja, pacienteAux, compararPorHoraRegistro);
-        printf("Prioridad modificada a Baja\n");
+      //Si la nueva prioridad es media
+      else if (strcasecmp(prioridadPaciente, "media") == 0){
+
+        //Eliminar de la lista de prioridad anterior del paciente
+        if (strcasecmp(pacienteAux->prioridad, "alta")== 0){
+          list_popCurrent(listaPrioridadAlta);
+
+        } else if (strcasecmp(pacienteAux->prioridad, "baja") == 0){
+          list_popCurrent(listaPrioridadBaja);
+        }
+        
+        //Asignar nueva prioridad
+        strcpy(pacienteAux->prioridad, "Media");
+        list_sortedInsert(listaPrioridadMedia, pacienteAux, compararPorHoraRegistro);
+        
+        
+        
+        printf("Prioridad modificada a Media\n");
       }
         
-      //Si la prioridad es media
-      else if (strcasecmp(prioridadPaciente, "media") == 0){
-          strcpy(pacienteAux->prioridad, "Media");
-          list_sortedInsert(listaPrioridadMedia, pacienteAux, compararPorHoraRegistro);
-          printf("Prioridad modificada a Media\n");
+      //Si la nueva prioridad es baja
+      else if (strcasecmp(prioridadPaciente, "baja") == 0){
+
+        //Eliminar de la lista de prioridad anterior del paciente
+        if (strcasecmp(pacienteAux->prioridad, "alta")== 0){
+          list_popCurrent(listaPrioridadAlta);
+
+        } else if (strcasecmp(pacienteAux->prioridad, "media") == 0){
+          list_popCurrent(listaPrioridadMedia);
         }
+
+        //Asignar nueva prioridad
+        strcpy(pacienteAux->prioridad, "Baja");
+        list_sortedInsert(listaPrioridadBaja, pacienteAux, compararPorHoraRegistro);
+        
+        
+        printf("Prioridad modificada a Baja\n");
+      }
 
       //Si la prioridad no es ninguna de las anteriores
       else{
@@ -140,6 +190,9 @@ void asignarPrioridad(List *pacientes) {
     
     pacienteAux = list_next(pacientes); //Paso al sig. paciente hasta dar con el que busco
   }
+  printf("========================================\n");
+  printf("No ha encontrado el paciente ingresado\n");
+  printf("========================================\n");
 }
 
 //Funcion para mostrar a todos los pacientes
