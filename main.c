@@ -56,13 +56,22 @@ void mostrarMenuPrincipal() {
   puts("6) Salir");
 }
 
-
+int esNumero(const char *cadena) {
+    while (*cadena) {
+        if (!isdigit(*cadena)) {
+            return 0;
+        }
+        cadena++;
+    }
+    return 1;
+}
 
 //Funcion para registrar pacientes
 void registrar_paciente(List *pacientes) {
   printf("========================================\n");
   printf("Registrar nuevo paciente\n");
   printf("========================================\n");
+  
   // Aquí implementarías la lógica para registrar un nuevo paciente
   tipoPaciente *regPaciente = malloc(sizeof(tipoPaciente));
   if (regPaciente == NULL){
@@ -70,18 +79,34 @@ void registrar_paciente(List *pacientes) {
     return;
   }
 
+  //Asignacioon nombre ak paciente
   printf("Ingrese el nombre del paciente: ");
   scanf("%s", &regPaciente->nombre);
 
-  printf("Ingrese la edad del paciente: ");
-  scanf("%d", &regPaciente->edad);
-
+  //Verificacion de edad valida
+  char edadAuxSTR[100];
+  int edadAuxINT = -1;
+  do {
+    printf("Ingrese la edad del paciente: ");
+    scanf("%s", edadAuxSTR);
+    
+    if (!esNumero(edadAuxSTR)){
+      printf("La edad ingresada no es valida, intente nuevamente... \n");
+      continue; //Si la edad ingresada no es valida se reintenta
+    }
+    edadAuxINT = atoi(edadAuxSTR);
+  }
+  while(!(edadAuxINT >= 0));
+  regPaciente->edad = edadAuxINT; // Aignacion edad del paciente
+  
+  
   printf("Ingrese el sintoma del paciente: ");
   scanf("%s[\n]", &regPaciente->sintoma);
-  toupper(regPaciente->sintoma);
+  //toupper(regPaciente->sintoma);
   //Asignamos la hora automaticamente segun la zona horaria del equipo que 
   //ejecute el programa
-  
+
+  //ASignacion de hora de registro
   regPaciente->horaRegistro = time(NULL);
   struct tm date = *localtime(&regPaciente->horaRegistro);
   printf("La hora de registro es: %02d:%02d\n", date.tm_hour,
