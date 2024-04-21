@@ -11,12 +11,11 @@ typedef struct{
   char nombre[MAXCHAR];
   int edad;
   char sintoma[MAXCHAR];
-  //char horaRegistro[50];
   time_t horaRegistro;
   char prioridad[50];
 } tipoPaciente;
 
-//Crear las listas por prioridad
+//Crear las listas por prioridad globales
 List *listaPrioridadAlta;
 List *listaPrioridadMedia;
 List *listaPrioridadBaja;
